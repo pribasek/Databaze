@@ -24,7 +24,33 @@
             text-align: center;
             width: 400px;
         }
-        #database-content { display: none; width: 80%; max-width: 800px; }
+        #database-content { display: none; width: 90%; max-width: 1000px; height: 80vh; overflow-y: auto; }
+        
+        /* Navigace */
+        .nav-menu {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+        .nav-item {
+            padding: 10px 15px;
+            background: #222;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .nav-item:hover { background: #333; }
+        
+        /* Speciální sekce pro detektivy */
+        #detective-only {
+            display: none; /* Defaultně skryto */
+            border: 1px solid #e74c3c;
+            padding: 10px;
+            background: rgba(231, 76, 60, 0.1);
+        }
+
         h1 { color: #0056b3; margin-bottom: 20px; }
         input {
             width: 100%;
@@ -45,48 +71,67 @@
             width: 100%;
             font-weight: bold;
         }
-        button:hover { background: #004494; }
-        .badge { font-size: 50px; margin-bottom: 10px; }
         .error { color: #ff4d4d; font-size: 14px; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
-        <div class="badge">🚔</div>
+        <div style="font-size: 50px;">🚔</div>
         <h1>LSPD INTRANET</h1>
-        <p>Autorizovaný přístup pouze</p>
-        <input type="password" id="passwordField" placeholder="Zadejte služební heslo">
+        <input type="password" id="passwordField" placeholder="Služební heslo">
         <button onclick="checkPassword()">VSTOUPIT</button>
-        <p id="errorMsg" class="error">Neplatné heslo! Přístup odepřen.</p>
+        <p id="errorMsg" class="error">Přístup odepřen!</p>
     </div>
 
     <div id="database-content">
-        <h1>Databáze LSPD</h1>
-        <p>Vítejte v systému.</p>
-        <hr style="border: 0.5px solid #333;">
-        <div style="text-align: left; margin-top: 20px;">
-            <h3>Poslední záznamy:</h3>
-            <ul>
-                <li>Žádné záznamy k zobrazení.</li>
-            </ul>
+        <div style="display: flex; justify-content: space-between;">
+            <h2 id="welcome-msg">Vítejte v systému</h2>
+            <button onclick="logout()" style="width: auto; background: #444;">Odhlásit</button>
         </div>
-        <button onclick="logout()" style="margin-top: 20px; background: #444;">Odhlásit se</button>
+
+        <div class="nav-menu">
+            <div class="nav-item">📋 Nástěnka</div>
+            <div class="nav-item">👮 Uniformy</div>
+            <div class="nav-item">🚔 Vozidla</div>
+            <div id="detective-link" class="nav-item" style="display: none; color: #e74c3c; font-weight: bold;">🕵️ Vyšetřování</div>
+        </div>
+
+        <div id="main-section">
+            <h3>Aktuální hlášení</h3>
+            <p>Všechny hlídky v pohotovosti. Kód 3 v oblasti Mission Row.</p>
+        </div>
+
+        <div id="detective-only">
+            <h3>Tajné spisy: Operace Underworld</h3>
+            <p>Tato sekce je přístupná pouze pro detektivní oddělení.</p>
+        </div>
     </div>
 
     <script>
-        // TADY NASTAVÍTE HESLO
-        const SECRET_PASSWORD = "david"; 
+        // DATABÁZE UŽIVATELŮ A HESEL
+        const USERS = {
+            "david": { name: "David", role: "officer" },
+            "detektiv123": { name: "Detektiv Novák", role: "detective" },
+            "admin": { name: "Chief of Police", role: "detective" }
+        };
 
         function checkPassword() {
-            const input = document.getElementById('passwordField').value;
-            const error = document.getElementById('errorMsg');
+            const pass = document.getElementById('passwordField').value;
+            const user = USERS[pass];
 
-            if (input === SECRET_PASSWORD) {
+            if (user) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('database-content').style.display = 'block';
+                document.getElementById('welcome-msg').innerText = "Vítejte, " + user.name;
+
+                // Rozlišení rolí
+                if (user.role === "detective") {
+                    document.getElementById('detective-link').style.display = 'block';
+                    document.getElementById('detective-only').style.display = 'block';
+                }
             } else {
-                error.style.display = 'block';
+                document.getElementById('errorMsg').style.display = 'block';
             }
         }
 
